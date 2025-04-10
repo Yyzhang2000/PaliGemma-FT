@@ -1,7 +1,7 @@
 from .config import PaliGemmaConfig
 from .siglip import SiglipVisionModel
 from .gemma import GemmaForCausalLM
-from kv_cache import KVCache
+from .kv_cache import KVCache
 from typing import Optional, Tuple
 
 import torch
@@ -22,7 +22,7 @@ class PaliGemmaMultiModalProjector(nn.Module):
 
 
 class PaliGemmaForConditionalGeneration(nn.Module):
-    def __inti__(self, config: PaliGemmaConfig):
+    def __init__(self, config: PaliGemmaConfig):
         super().__init__()
 
         self.config = config

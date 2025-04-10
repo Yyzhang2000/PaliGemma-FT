@@ -6,8 +6,8 @@ import math
 
 
 from typing import Optional, Dict
-from config import GemmaConfig
-from kv_cache import KVCache
+from .config import GemmaConfig
+from .kv_cache import KVCache
 
 
 class GemmaRMSNorm(nn.Module):
@@ -126,6 +126,8 @@ class GemmaAttention(nn.Module):
         config: GemmaConfig,
         layer_idx: Optional[int] = None,
     ):
+        super().__init__()
+
         self.config = config
         self.layer_idx = layer_idx
 
@@ -287,10 +289,10 @@ class GemmaModel(nn.Module):
 
     def forward(
         self,
-        attention_mask: Optional[torch.Tensor] = None,
-        position_ids: Optional[torch.Tensor] = None,
-        input_embeds: Optional[torch.Tensor] = None,
-        kv_cache: Optional[KVCache] = None,
+        attention_mask: Optional[torch.Tensor],
+        position_ids: Optional[torch.Tensor],
+        input_embeds: torch.Tensor,
+        kv_cache: Optional[KVCache],
         **kwargs
     ) -> torch.FloatTensor:
 

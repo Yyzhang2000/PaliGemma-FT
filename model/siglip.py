@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Tuple
 
-from config import SiglipVisionConfig
+from .config import SiglipVisionConfig
 
 
 class SiglipVisionEmbeddings(nn.Module):
@@ -20,7 +20,7 @@ class SiglipVisionEmbeddings(nn.Module):
             out_channels=self.embed_dim,
             kernel_size=self.patch_size,
             stride=self.patch_size,
-            padding=" valid",
+            padding="valid",
         )
 
         self.num_patches = (self.image_size // self.patch_size) ** 2
@@ -49,7 +49,7 @@ class SiglipVisionEmbeddings(nn.Module):
 
 
 class SiglipAttention(nn.Module):
-    def __inti__(self, config: SiglipVisionConfig):
+    def __init__(self, config: SiglipVisionConfig):
         super().__init__()
 
         self.embed_dim = config.hidden_size
