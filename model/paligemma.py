@@ -49,6 +49,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
     ):
         _, _, embed_dim = image_features.shape
 
+        print(input_ids.shape)
         B, S = input_ids.shape  # S is the size of the image plus text
         dtype, device = inputs_embeds.dtype, inputs_embeds.device
 
@@ -139,7 +140,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         outputs = self.language_model(
             attention_mask=attention_mask,
             position_ids=position_ids,
-            inputs_embeds=inputs_embeds,
+            input_embeds=inputs_embeds,
             kv_cache=kv_cache,
         )
 
