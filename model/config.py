@@ -1,55 +1,53 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
 class SiglipVisionConfig:
-    hidden_size = 768
-    intermediate_size = 3072
-    num_hidden_layers = 12
-    num_attention_heads = 12
-    num_channels = 3
-    image_size = 224
-    patch_size = 16
-    layer_norm_eps = 1e-6
-    attention_dropout = 0.0
-    num_image_tokens: int = 8
+    hidden_size: int = 1152
+    intermediate_size: int = 4304
+    num_hidden_layers: int = 27
+    num_attention_heads: int = 16
+    num_channels: int = 3
+    image_size: int = 224
+    patch_size: int = 14
+    layer_norm_eps: float = 1e-6
+    attention_dropout: float = 0.0
+    num_image_tokens: int = 256
+    # projection_dim: Optional[int] = None
+    # projector_hidden_act: Optional[str] = None
+    # vision_use_head: Optional[bool] = None
 
 
 @dataclass
 class GemmaConfig:
-    vocab_size = 50265
-    hidden_size = 768
-    intermediate_size = 3072
-    num_hidden_layers = 12
-    num_attention_heads = 12
-    num_key_value_heads = 12
-    head_dim = 256
-    max_position_embeddings = 8192
-    rms_norm_eps = 1e-6
-    rope_theta = 10000.0
-    attention_bias = False
-    attention_dropout = 0.0
-    pad_token_id = None
+    vocab_size: int = 257216
+    hidden_size: int = 2048
+    intermediate_size: int = 16384
+    num_hidden_layers: int = 18
+    num_attention_heads: int = 8
+    num_key_value_heads: int = 1
+    head_dim: int = 256
+    max_position_embeddings: int = 8192
+    rms_norm_eps: float = 1e-6
+    rope_theta: float = 10000.0
+    attention_bias: bool = False
+    attention_dropout: float = 0.0
+    pad_token_id: Optional[int] = 0
+    num_image_tokens: int = 256
 
 
 @dataclass
 class PaliGemmaConfig:
-    text_config = GemmaConfig
-    vision_config = SiglipVisionConfig
+    text_config: GemmaConfig
+    vision_config: SiglipVisionConfig
 
-    ignore_index = ignore_index
-    image_token_index = image_token_index
-    vocab_size = vocab_size
-    projection_dim = projection_dim
-    hidden_size = hidden_size
-    vision_config = vision_config
-    is_encoder_decoder = False
-    pad_token_id = pad_token_id
-
-    text_config = text_config
-
-    vocab_size = text_config.vocab_size
-    text_config.num_image_tokens = (
-        vision_config.image_size // vision_config.patch_size
-    ) ** 2
-    vision_config.projection_dim = projection_dim
+    bos_token_id: int = 2
+    eos_token_id: int = 1
+    pad_token_id: int = 0
+    ignore_index: int = -100
+    image_token_index: int = 257152
+    hidden_size: int = 2048
+    projection_dim: int = 2048
+    vocab_size: int = 257216
+    model_type: str = "paligemma"
