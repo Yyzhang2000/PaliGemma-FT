@@ -14,9 +14,7 @@ class SiglipVisionConfig:
     layer_norm_eps: float = 1e-6
     attention_dropout: float = 0.0
     num_image_tokens: int = 256
-    # projection_dim: Optional[int] = None
-    # projector_hidden_act: Optional[str] = None
-    # vision_use_head: Optional[bool] = None
+    projection_dim: int = 2048
 
 
 @dataclass
@@ -33,7 +31,7 @@ class GemmaConfig:
     rope_theta: float = 10000.0
     attention_bias: bool = False
     attention_dropout: float = 0.0
-    pad_token_id: Optional[int] = 0
+    pad_token_id: int = 0
     num_image_tokens: int = 256
 
 

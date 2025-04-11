@@ -26,11 +26,13 @@ class SiglipVisionEmbeddings(nn.Module):
         self.num_patches = (self.image_size // self.patch_size) ** 2
         self.num_positions = self.num_patches
 
+        # Learned positional embeddings
         self.position_embedding = nn.Embedding(self.num_positions, self.embed_dim)
+
         # TODO
         self.register_buffer(
             "position_ids",
-            torch.arange(self.num_positions).expand((1, -1)),
+            torch.arange(self.num_positions).unsqueeze(0),
             persistent=False,
         )
 
@@ -76,7 +78,7 @@ class SiglipAttention(nn.Module):
         B, S, D = hidden_states.shape
 
         q, k, v = map(
-            lambda x: x.reshape(B, S, self.num_heads, self.head_dim).transpose(1, 2),
+            lambda x: x.view(B, S, self.num_heads, self.head_dim).transpose(1, 2),
             (
                 self.q_proj(hidden_states),
                 self.k_proj(hidden_states),
@@ -84,11 +86,11 @@ class SiglipAttention(nn.Module):
             ),
         )
 
-        score = torch.matmul(q, k.transpose(-1, -2)) * self.scale
-        score = score.softmax(dim=-1)
+        score = torch.matmul(q, k.transpose(2, 3)) * self.scale
+        score = score.softmax(dim=-1).to(q.dtype)
 
         score = F.dropout(score, p=self.dropout, training=self.training)
-        attn = torch.matmul(score, v).transpose(1, 2).contiguous().view(B, S, D)
+        attn = torch.matmul(score, v).transpose(1, 2).contiguous().reshape(B, S, D)
         attn = self.out_proj(attn)
 
         return attn, score

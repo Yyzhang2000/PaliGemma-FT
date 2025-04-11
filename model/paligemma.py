@@ -13,7 +13,9 @@ class PaliGemmaMultiModalProjector(nn.Module):
     def __init__(self, config: PaliGemmaConfig):
         super().__init__()
         self.linear = nn.Linear(
-            config.vision_config.hidden_size, config.text_config.hidden_size, bias=True
+            config.vision_config.hidden_size,
+            config.vision_config.projection_dim,
+            bias=True,
         )
 
     def forward(self, image_features):
@@ -80,7 +82,6 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         )
 
         # ===== Get the attention mask =====
-        min_dtype = torch.finfo(dtype).min
         q_len = inputs_embeds.shape[1]
 
         if kv_cache is not None or kv_cache.num_items() == 0:

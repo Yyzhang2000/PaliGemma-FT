@@ -29,14 +29,18 @@ class GemmaRMSNorm(nn.Module):
 
 class GemmaRotaryEmbedding(nn.Module):
     def __init__(
-        self, dim, max_position_embeddings=2028, base: float = 10000.0, device=None
+        self,
+        dim,
+        max_position_embeddings=2028,
+        base: float = 10000.0,
     ):
         super().__init__()
 
-        self.dim = dim
+        self.dim = dim  # Head Dimension
         self.max_position_embeddings = max_position_embeddings
         self.base = base
 
+        # dim // 2 number of elements
         inv_freq = 1.0 / (self.base ** (torch.arange(0, dim, 2).float() / dim))
         self.register_buffer(
             "inv_freq",
@@ -64,11 +68,12 @@ class GemmaRotaryEmbedding(nn.Module):
             freqs = (
                 inv_freq_expanded.float() @ position_ids_expanded.float()
             ).transpose(1, 2)
-            emb = torch.cat((freqs, freqs), dim=-1).float()
+            emb = torch.cat((freqs, freqs), dim=-1)
 
             cos = emb.cos()
             sin = emb.sin()
 
+        # (B, S, D)
         return cos.to(dtype=x.dtype), sin.to(dtype=x.dtype)
 
 
@@ -80,6 +85,8 @@ def rotate_half(x):
 
 
 def apply_rotary_pos_emb(q, k, cos, sin, unsqueeze_dim=1):
+    # Add head Dimension
+    # (B, S, D) -> (B, H, S, D)
     cos = cos.unsqueeze(unsqueeze_dim)
     sin = sin.unsqueeze(unsqueeze_dim)
 
@@ -191,7 +198,7 @@ class GemmaAttention(nn.Module):
         ).transpose(1, 2)
 
         # Apply rotary embedding on q, k,
-        cos, sin = self.rotary_emb(v, position_ids, S)
+        cos, sin = self.rotary_emb(v, position_ids, seq_len=S)
         q, k = apply_rotary_pos_emb(q, k, cos, sin)
 
         # Get Key and Value from cache
@@ -207,7 +214,7 @@ class GemmaAttention(nn.Module):
         assert attention_mask is not None
         scores = scores + attention_mask
 
-        scores = F.softmax(scores, dim=-1).to(q.dtype)
+        scores = F.softmax(scores, dim=-1, dtype=torch.float32).to(q.dtype)
         scores = F.dropout(
             scores, p=self.config.attention_dropout, training=self.training
         )
@@ -244,9 +251,10 @@ class GemmaDecoderLayer(nn.Module):
         position_ids: Optional[torch.Tensor] = None,
         kv_cache: Optional[KVCache] = None,
     ):
-        residual = self.input_layernorm(hidden_states)
+        residual = hidden_states
 
-        hidden_states, attn_weights = self.self_attn(
+        hidden_states = self.input_layernorm(hidden_states)
+        hidden_states, _ = self.self_attn(
             hidden_states,
             attention_mask=attention_mask,
             position_ids=position_ids,
