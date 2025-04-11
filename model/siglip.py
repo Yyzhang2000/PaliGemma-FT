@@ -173,10 +173,10 @@ class SiglipVisionModel(nn.Module):
         super().__init__()
 
         self.config = config
-        self.vision_transformer = SiglipVisionTransformer(config)
+        self.vision_model = SiglipVisionTransformer(config)
 
     def forward(self, pixel_values) -> torch.Tensor:
-        hidden_states = self.vision_transformer(pixel_values)
+        hidden_states = self.vision_model(pixel_values)
 
         # [B, NUM_PATCHES, EMBED_DIM]
         return hidden_states

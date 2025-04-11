@@ -4,7 +4,6 @@
   "bos_token_id": 2,
   "eos_token_id": 1,
   "hidden_size": 2048,
-  // "ignore_index": -100,
   "image_token_index": 257152,
   "model_type": "paligemma",
   "pad_token_id": 0,

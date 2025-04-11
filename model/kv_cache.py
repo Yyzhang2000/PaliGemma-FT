@@ -25,6 +25,7 @@ class KVCache:
             self.key_cache.append(key_states)
             self.value_cache.append(value_states)
         else:
+            # [Batch_Size, Num_Heads_KV, Seq_Len, Head_Dim]
             self.key_cache[layer_idx] = torch.cat(
                 [self.key_cache[layer_idx], key_states], dim=-2
             )

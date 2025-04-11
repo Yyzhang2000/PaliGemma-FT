@@ -1,8 +1,7 @@
 from model.paligemma import PaliGemmaForConditionalGeneration
 from model.config import PaliGemmaConfig, SiglipVisionConfig, GemmaConfig
 
-
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizerBase
 import json
 import glob
 from safetensors import safe_open
@@ -11,22 +10,19 @@ import os
 
 
 def load_hf_model(
-    model_id: str = "google/paligemma-3b-mix-224",
     model_path="./weights",
     device: str = "cpu",
-) -> Tuple[PaliGemmaForConditionalGeneration, AutoTokenizer]:
+) -> Tuple[PaliGemmaForConditionalGeneration, PreTrainedTokenizerBase]:
     # Load the tokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side="right")
+    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="right")
     assert tokenizer.padding_side == "right"
 
-    # Find all the *.safetensors files
+    # # Find all the *.safetensors files and load them one by one in the tensors dictionary
     safetensors_files = glob.glob(os.path.join(model_path, "*.safetensors"))
-
-    # ... and load them one by one in the tensors dictionary
     tensors = {}
     for safetensors_file in safetensors_files:
-        with safe_open(safetensors_file, framework="pt", device="cpu") as f:
+        with safe_open(safetensors_file, framework="pt", device="cpu") as f:  # type: ignore
             for key in f.keys():
                 tensors[key] = f.get_tensor(key)
 

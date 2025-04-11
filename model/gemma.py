@@ -15,7 +15,7 @@ class GemmaRMSNorm(nn.Module):
         super().__init__()
 
         self.eps = eps
-        self.weights = nn.Parameter(torch.zeros(dim))
+        self.weight = nn.Parameter(torch.zeros(dim))
 
     def _norm(self, x):
         return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
@@ -23,7 +23,7 @@ class GemmaRMSNorm(nn.Module):
     def forward(self, x):
         output = self._norm(x.float())
 
-        output = output * (1.0 + self.weights)
+        output = output * (1.0 + self.weight.float())
         return output.type_as(x)
 
 
@@ -46,7 +46,7 @@ class GemmaRotaryEmbedding(nn.Module):
 
     @torch.no_grad()
     def forward(self, x, position_ids, seq_len=None):
-        device = x.device
+
         device_type = x.device.type
         device_type = (
             device_type
@@ -54,12 +54,12 @@ class GemmaRotaryEmbedding(nn.Module):
             else "cpu"
         )
 
+        self.inv_freq.to(x.device)
         inv_freq_expanded = (
             self.inv_freq[None, :, None].float().expand(position_ids.shape[0], -1, -1)
         )
 
         position_ids_expanded = position_ids[:, None, :].float()
-
         with torch.autocast(device_type=device_type, enabled=False):
             freqs = (
                 inv_freq_expanded.float() @ position_ids_expanded.float()
@@ -202,7 +202,7 @@ class GemmaAttention(nn.Module):
         k = repeat_kv(k, self.num_kv_groups)
         v = repeat_kv(v, self.num_kv_groups)
 
-        scores = torch.matmul(q, k.transpose(-1, -2)) / math.sqrt(self.config.head_dim)
+        scores = torch.matmul(q, k.transpose(2, 3)) / math.sqrt(self.config.head_dim)
 
         assert attention_mask is not None
         scores = scores + attention_mask
@@ -298,7 +298,7 @@ class GemmaModel(nn.Module):
 
         hidden_states = input_embeds
         normalizer = torch.tensor(
-            self.config.hidden_size**-0.5,
+            self.config.hidden_size**0.5,
             dtype=hidden_states.dtype,
         )
         hidden_states = hidden_states * normalizer

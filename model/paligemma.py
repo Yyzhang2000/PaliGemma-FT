@@ -48,8 +48,6 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         kv_cache: KVCache,
     ):
         _, _, embed_dim = image_features.shape
-
-        print(input_ids.shape)
         B, S = input_ids.shape  # S is the size of the image plus text
         dtype, device = inputs_embeds.dtype, inputs_embeds.device
 
@@ -94,7 +92,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
             assert q_len == 1
             kv_len = kv_cache.num_items() + q_len
             causal_mask = torch.full(
-                (B, q_len, kv_len), fill_value=min_dtype, device=device, dtype=dtype
+                (B, q_len, kv_len), fill_value=0, device=device, dtype=dtype
             )
 
         causal_mask = causal_mask.unsqueeze(1)
